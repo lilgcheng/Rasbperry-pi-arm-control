@@ -1,0 +1,25 @@
+.section .init
+.globl _start
+	//Set GPIO10 (RpiB) to output mode(001) 
+	ldr r0,=0x3F200000 //Physical address 
+	ldr r1,=0x249249	//設定輸出腳位 GPIO10~GPIO19(通用GPIO10~GPIO39)
+	str r1,[r0,#0x04] /* Function Select GPIO 20~29 */
+	
+loop://無窮迴圈
+	mov r1,#1 //r1暫存器存入1
+	lsl r1,#10 /* 暫存器左移10個bit */
+	str r1,[r0,#0x28]/*Clear GPIO*/
+	str r1,[r0,#0x1c]/*Pin Set*/
+	bl Delay/*跳至Delay*/
+	str r1,[r0,#0x28] /*Clear GPIO*/
+	bl Delay/*跳至Delay*/
+	b loop/*返回loop*/
+
+Delay:	
+	ldr r3,=0x0F0000/*設定延遲時間，並存入r3暫存器*/
+Delay1:
+	sub r3,r3,#1/*r3暫存器值-1*/
+	cmp r3,#0/*比較r3是否為0*/
+	bne Delay1/*不為零跳回Delay1*/
+	mov pc,lr/*返回程式*/
+.end
