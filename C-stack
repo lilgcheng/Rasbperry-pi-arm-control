@@ -1,0 +1,93 @@
+/*
+程式需要回溯經過的路徑，這種性質非常符合資料結構中的推疊 
+*/ 
+
+#include<stdio.h>
+#include<stdlib.h>
+//0:可走的路 
+//1:牆 不可走
+//2:走過的路
+//3:回溯 
+struct stack_node{
+	int x;
+	int y;
+	struct stack_node *next;
+};
+typedef struct stack_node NODE;
+NODE *path = NULL;
+NODE *push(NODE *stack ,int x,int y);
+NODE *pop(NODE *stack,int *x,int *y);
+int main()
+{
+  int maze[7][10]={
+  	1,1,1,1,1,1,1,1,1,1,
+  	1,0,1,0,1,0,0,0,0,1,
+  	1,0,1,0,1,0,1,1,0,1,
+  	1,0,1,0,1,1,1,0,0,1,
+  	1,0,1,0,0,0,0,0,1,1,
+  	1,0,0,0,1,1,1,0,0,1,
+  	1,1,1,1,1,1,1,1,1,1};
+	int i,j;
+	int x=5,y=8;//迷宮入口 
+	while(x!=1 || y!=1){//是否找到出口 
+		maze[x][y]=2;//標示走過的路
+		if(maze[x-1][y]<=0){//往上走
+			x = x-1; 
+			path = push(path,x,y);//save path 
+		}
+		else if(maze[x+1][y]<=0){//往下走 
+			x = x+1;
+			path = push(path,x,y);//save path 
+		}
+		else if(maze[x][y-1]<=0){//往左走 
+			y = y-1;
+			path = push(path,x,y);//save path 
+		}
+		else if(maze[x][y+1]<=0){//往又走 
+			y = y+1;
+			path = push(path,x,y);//save path 
+		}else{
+			maze[x][y]=3;//回溯的路
+			path=pop(path,&x,&y);//退一步 
+		}
+	}
+	maze[x][y] = 2;//標示最後一點 
+	
+	for(i=1;i<6;i++){
+		for(j=1;j<9;j++){
+			printf("%d",maze[i][j]);
+		}
+		printf("\n");
+	}
+	system("pause");
+  	return 0;
+}
+
+
+NODE *push(NODE *stack ,int x,int y){
+	NODE *newnode;
+	newnode = (NODE*)malloc(sizeof(NODE));
+	if(newnode==NULL){
+		printf("memory error\n");
+	}
+	newnode->x = x;
+	newnode->y = y;
+	newnode->next = stack;//新節點指向原開始 
+	stack = newnode; 
+	return stack;
+} 
+
+NODE *pop(NODE *stack,int *x,int *y){
+	NODE *top;
+	if(stack!=NULL){
+		top = stack;
+		stack = stack->next;
+		*x = stack->x;
+		*y = stack->y;
+		free(top);
+		return stack;
+		
+	}else{
+		*x=-1;
+	}
+}
